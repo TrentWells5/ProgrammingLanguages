@@ -1,16 +1,8 @@
 #include "scanner.hpp"
 
 // Static member definitions
-const char Scanner::EOI = '$';
-const char Scanner::START_COMMENT = '#';
-const char Scanner::END_COMMENT = '#';
-const char Scanner::START_STRING = '"';
-const char Scanner::END_STRING = '"';
+const char Scanner::START_COMMENT = '~';
 const char Scanner::EQUAL = '=';
-const char Scanner::NOT = '!';
-const char Scanner::GREATER = '>';
-const char Scanner::LESS = '<';
-const string Scanner::eoIToken = "eoI";
 
 const unordered_set<char> Scanner::WHITESPACE = {' ', '\t', '\n'};
 const unordered_set<char> Scanner::DIGITS = {'0','1','2','3','4','5','6','7','8','9'};
@@ -20,24 +12,16 @@ const unordered_set<char> Scanner::LETTERS_OR_DIGITS = Scanner::initializeLetter
 const unordered_map<char, string> Scanner::OP_TABLE = {
     {'(', "lParen"},
     {')', "rParen"}, 
-    {'{', "lCurly"}, 
-    {'}', "rCurly"},
     {'+', "plusSym"}, 
     {'-', "minusSym"},
     {'*', "timesSym"}, 
     {'/', "divSym"},
     {';', "semicolon"}, 
-    {',', "comma"}
 };
 
 const unordered_map<string, string> Scanner::KEYWORD_TABLE = {
-    {"while", "whileSym"}, 
-    {"return", "returnSym"}, 
-    {"if", "ifSym"},
-    {"else", "elseSym"}, 
-    {"do", "doSym"}, 
-    {"int", "intSym"},
-    {"string", "stringSym"}
+    {"begin", "beginSym"},
+    {"end.", "endSym"},
 };
 
 unordered_set<char> Scanner::initializeLetters() {

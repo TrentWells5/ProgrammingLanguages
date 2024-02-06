@@ -22,15 +22,8 @@ private:
     string currentToken;
 
     // Character classes
-    static const char EOI;
     static const char START_COMMENT;
-    static const char END_COMMENT;
-    static const char START_STRING;
-    static const char END_STRING;
     static const char EQUAL;
-    static const char NOT;
-    static const char GREATER;
-    static const char LESS;
 
     static const unordered_set<char> WHITESPACE;
     static const unordered_set<char> DIGITS;
