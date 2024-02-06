@@ -4,6 +4,7 @@
 #include "scanner.hpp" // Adjust the include path according to your project structure
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include <cassert>
 using namespace std;
 

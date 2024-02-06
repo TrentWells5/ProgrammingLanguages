@@ -6,7 +6,7 @@ Parser::Parser(const string& source) : scanner(source) {
 
 void Parser::error(const string& message) {
     cerr << "Error: " << message << endl;
-    assert(false); // Use C++'s assert for error handling
+    assert(false);
 }
 
 void Parser::scan() {
@@ -18,6 +18,7 @@ void Parser::expect(const initializer_list<string>& symbolSet) {
         if (currentToken != "eoI") scan();
     } else {
         error(currentToken + " expected, found " + currentToken);
+        
     }
 }
 
@@ -31,9 +32,6 @@ void Parser::parse() {
     }
 }
 
-// Inside Parser.cpp
-
-// Stmt = Assign | Cond | Loop
 void Parser::Stmt() {
     if (currentToken == "identifier") {
         Assign();
@@ -46,69 +44,60 @@ void Parser::Stmt() {
     }
 }
 
-// Assign = LVal = AExpr
 void Parser::Assign() {
     LVal();
     expect({"assignSym"});
     AExpr();
 }
 
-// Cond = if ( AExpr ) Stmt
 void Parser::Cond() {
-    scan(); // Move past 'ifSym'
+    scan(); 
     expect({"lParen"});
     AExpr();
     expect({"rParen"});
     Stmt();
 }
 
-// Loop = while ( AExpr ) Stmt
 void Parser::Loop() {
-    scan(); // Move past 'whileSym'
+    scan(); 
     expect({"lParen"});
     AExpr();
     expect({"rParen"});
     Stmt();
 }
 
-// LVal = id
 void Parser::LVal() {
     expect({"identifier"});
 }
 
-// AExpr = Term (+ | - Term)*
 void Parser::AExpr() {
     Term();
     while (currentToken == "plusSym" || currentToken == "minusSym") {
-        scan(); // Move past the operator
+        scan(); 
         Term();
     }
 }
 
-// Term = Factor (* | / Factor)*
 void Parser::Term() {
     Factor();
     while (currentToken == "timesSym" || currentToken == "divSym") {
-        scan(); // Move past the operator
+        scan(); 
         Factor();
     }
 }
 
-// Factor = (AExpr) | id | num
 void Parser::Factor() {
     if (currentToken == "lParen") {
-        scan(); // Move past '('
+        scan(); 
         AExpr();
-        expect({"rParen"}); // Ensure we have a closing ')'
+        expect({"rParen"});
     } else if (currentToken == "identifier" || currentToken == "numConstant") {
-        scan(); // Accept the token and move on
+        scan(); 
     } else {
         error("Factor (id, num, or expression) expected");
     }
 }
 
-
-// Example implementation for Stmts
 void Parser::Stmts() {
     Stmt();
     while (currentToken == "semicolon") {
@@ -116,6 +105,3 @@ void Parser::Stmts() {
         Stmt();
     }
 }
-
-// The rest of the methods (Stmt, Assign, Cond, Loop, LVal, AExpr, Term, Factor) need to be implemented 
-// following the logic provided in the Python version.
