@@ -1,37 +1,42 @@
-#include <fstream>
 #include <iostream>
-#include <sstream>
+#include <fstream>  // Include for ifstream
+#include <sstream>  // Include for stringstream
+#include <vector>   // Include for vector
 #include "scanner.hpp"
+#include "parser.hpp"
+#include <utility>
 
-string readFile(const string& filePath) {
-    ifstream file(filePath);
-    stringstream buffer;
+using namespace std;
 
-    if (file) {
-        buffer << file.rdbuf();
-        file.close();
-        return buffer.str();
-    } else {
-        cerr << "Could not open file: " << filePath << endl;
+string readFileContent(const string& filename) {
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Could not open file: " << filename << endl;
         return "";
     }
+
+    stringstream buffer;
+    buffer << file.rdbuf();
+    return buffer.str();
 }
 
 int main() {
-    for (int i = 1; i <= 1; ++i) {
-        string fileName = "inputFilesP1/a" + to_string(i); // Assuming files are named a1, a2, ..., a8
-        string fileContent = readFile(fileName);
+    vector<string> filenames = {
+        "a1", "a2", "a3", "a4",
+        "a5", "a6", "a7", "a8"
+    };
 
-        if (!fileContent.empty()) {
-            Scanner scanner(fileContent);
-            vector<Token> tokens = scanner.scanTokens();
+    for(int i = 0; i < 8; i++){
+        filenames.at(i) = "inputFilesP1/" + filenames.at(i);
+    }
 
-            cout << "Tokens from file " << fileName << ":" << endl;
-            for (const auto& token : tokens) {
-                // Assuming Token struct has a way to print itself or has accessible members
-                // This is a placeholder for how you might output each token's details
-                cout << "Token (type: " << scanner.tokenTypeToString(token.type) << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
-            }
+    for (const auto& filename : filenames) {
+        string content = readFileContent(filename);
+        if (!content.empty()) {
+            cout << "Parsing " << filename << "..." << endl;
+            Parser parser(content);
+            parser.parse();
+            cout << "Done parsing " << filename << ".\n" << endl;
         }
     }
 
