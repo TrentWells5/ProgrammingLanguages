@@ -2,14 +2,8 @@
 
 // Static member definitions
 const char Scanner::EOI = '$';
-const char Scanner::START_COMMENT = '#';
-const char Scanner::END_COMMENT = '#';
-const char Scanner::START_STRING = '"';
-const char Scanner::END_STRING = '"';
+const char Scanner::START_COMMENT = '~';
 const char Scanner::EQUAL = '=';
-const char Scanner::NOT = '!';
-const char Scanner::GREATER = '>';
-const char Scanner::LESS = '<';
 const string Scanner::eoIToken = "eoI";
 
 const unordered_set<char> Scanner::WHITESPACE = {' ', '\t', '\n'};
@@ -31,13 +25,8 @@ const unordered_map<char, string> Scanner::OP_TABLE = {
 };
 
 const unordered_map<string, string> Scanner::KEYWORD_TABLE = {
-    {"while", "whileSym"}, 
-    {"return", "returnSym"}, 
-    {"if", "ifSym"},
-    {"else", "elseSym"}, 
-    {"do", "doSym"}, 
-    {"int", "intSym"},
-    {"string", "stringSym"}
+    {"begin", "beginSym"}, 
+    {"end", "endSym"}, 
 };
 
 unordered_set<char> Scanner::initializeLetters() {
@@ -58,6 +47,22 @@ unordered_set<char> Scanner::initializeLettersOrDigits() {
     }
     return lettersOrDigits;
 }
+
+// bool isLetter(char ch) const {
+//     return LETTERS.find(ch) != LETTERS.end();
+// }
+
+bool Scanner::isDigit(char ch) {
+    return DIGITS.find(ch) != DIGITS.end();
+}
+
+// bool isUnderscore(char ch) const {
+//     return ch == '_';
+// }
+
+// bool isValidIdentifierChar(char ch) const {
+//     return LETTERS_OR_DIGITS.find(ch) != LETTERS_OR_DIGITS.end() || isUnderscore(ch);
+// }
 
 Scanner::Scanner(const string& source) : source(source + EOI), position(0) {
     init(); // Assuming init() sets up the initial state for scanning
@@ -151,13 +156,11 @@ void Scanner::skipWS() {
 
 void Scanner::skipComment() {
     eat(); // Move past the start comment character
-    while (currentCh() != END_COMMENT && !atEOI()) {
+    while (currentCh() != '\n' && !atEOI()) {
         eat();
     }
     if (!atEOI()) {
         eat(); // Move past the end comment character
-    } else {
-        error("Unterminated comment");
     }
 }
 
@@ -177,7 +180,7 @@ void Scanner::jumpStar() {
 
 pair<string, string> Scanner::NUM() {
     string numLiteral;
-    while (isdigit(currentCh())) {
+    while (isDigit(currentCh())) {
         numLiteral += currentCh();
         eat();
     }
@@ -193,13 +196,43 @@ pair<string, string> Scanner::ID() {
     } else {
         return {"identifier", result};
     }
-}
+    // string result;
+    //     char prevChar = '\0';
 
-pair<string, string> Scanner::STRI() {
-    eat(); // Skip initial START_STRING
-    string result = find(END_STRING);
-    eat(); // Skip END_STRING
-    return {"stringConstant", result};
+    //     // Ensure the first character is a letter
+    //     if (isLetter(currentChar())) {
+    //         result += currentChar();
+    //         prevChar = currentChar();
+    //         eat();
+    //     } else {
+    //         // Handle error for identifiers not starting with a letter
+    //         return {"error", "Identifier does not start with a letter"};
+    //     }
+
+    //     // Process subsequent characters
+    //     while (isValidIdentifierChar(currentChar())) {
+    //         if (isUnderscore(currentChar()) && isUnderscore(prevChar)) {
+    //             // Handle consecutive underscores error
+    //             return {"error", "Identifier contains consecutive underscores"};
+    //         }
+    //         result += currentChar();
+    //         prevChar = currentChar();
+    //         eat();
+    //     }
+
+    //     // Check if the identifier ends with an underscore
+    //     if (isUnderscore(prevChar)) {
+    //         return {"error", "Identifier cannot end with an underscore"};
+    //     }
+
+    //     // Check if the result is a keyword
+    //     auto found = KEYWORD_TABLE.find(result);
+    //     if (found != KEYWORD_TABLE.end()) {
+    //         return {found->second, ""};
+    //     } else {
+    //         return {"identifier", result};
+    //     }
+    
 }
 
 pair<string, string> Scanner::twoCharSym(char secondCh, const string& firstToken, const string& secondToken) {
@@ -226,11 +259,6 @@ pair<string, string> Scanner::nextToken() {
         return NUM();
     }
 
-    // Handle string literals
-    if (c == START_STRING) {
-        return STRI();
-    }
-
     // Handle identifiers and keywords
     if (LETTERS.find(c) != LETTERS.end()) {
         auto [tokenType, lexeme] = ID();
@@ -243,9 +271,6 @@ pair<string, string> Scanner::nextToken() {
     // Handle two-character symbols
     switch (c) {
         case EQUAL: return twoCharSym(EQUAL, "assignSym", "equalSym");
-        case NOT: return twoCharSym(EQUAL, "notSym", "notEqualSym");
-        case GREATER: return twoCharSym(EQUAL, "greaterSym", "greaterEQSym");
-        case LESS: return twoCharSym(EQUAL, "lessSym", "lessEQSym");
         default: break;
     }
 

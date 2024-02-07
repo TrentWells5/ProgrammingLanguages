@@ -41,6 +41,7 @@ private:
     static const unordered_map<string, string> KEYWORD_TABLE;
 
     // Helper methods
+    bool isDigit(char ch);
     void error(const string& message);
     char currentCh();
     void move();
