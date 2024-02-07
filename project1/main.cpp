@@ -26,11 +26,12 @@ int main() {
         "a5", "a6", "a7", "a8"
     };
 
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < 8; i++){
         filenames.at(i) = "inputFilesP1/" + filenames.at(i);
     }
 
     for (const auto& filename : filenames) {
+        cout << "Scanning file: " << filename << endl;
         string content = readFileContent(filename);
         if (!content.empty()) {
             // cout << "Parsing " << filename << "..." << endl;
@@ -44,6 +45,8 @@ int main() {
                 cout << token.first << ": " << (token.second.empty() ? "N/A" : token.second) << endl;
                 token = scanner.nextToken();
             }
+            cout << endl;
+            cout << endl;
         }
     }
 

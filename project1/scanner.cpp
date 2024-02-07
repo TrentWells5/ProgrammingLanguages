@@ -1,7 +1,7 @@
 #include "scanner.hpp"
 
 // Static member definitions
-const char Scanner::EOI = '$';
+const char Scanner::EOI = '.';
 const char Scanner::START_COMMENT = '~';
 const char Scanner::EQUAL = '=';
 const string Scanner::eoIToken = "eoI";
