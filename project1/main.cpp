@@ -1,23 +1,20 @@
+#include <fstream>
 #include <iostream>
-#include <fstream>  // Include for ifstream
-#include <sstream>  // Include for stringstream
-#include <vector>   // Include for vector
+#include <sstream>
 #include "scanner.hpp"
-#include "parser.hpp"
-#include <utility>
 
-using namespace std;
+string readFile(const string& filePath) {
+    ifstream file(filePath);
+    stringstream buffer;
 
-string readFileContent(const string& filename) {
-    ifstream file(filename);
-    if (!file.is_open()) {
-        cerr << "Could not open file: " << filename << endl;
+    if (file) {
+        buffer << file.rdbuf();
+        file.close();
+        return buffer.str();
+    } else {
+        cerr << "Could not open file: " << filePath << endl;
         return "";
     }
-
-    stringstream buffer;
-    buffer << file.rdbuf();
-    return buffer.str();
 }
 
 int main() {
@@ -26,41 +23,22 @@ int main() {
         "a5", "a6", "a7", "a8"
     };
 
-    for(int i = 0; i < 8; i++){
-        filenames.at(i) = "inputFilesP1/" + filenames.at(i);
-    }
+    for (int i = 0; i < filenames.size(); ++i) {
+        string filePath = "inputFilesP1/" + filenames[i]; // Adjust directory as needed
+        string fileContent = readFile(filePath);
+        if (!fileContent.empty()) {
+            Scanner scanner(fileContent);
+            vector<Token> tokens = scanner.scanTokens();
 
-    for (const auto& filename : filenames) {
-        cout << "Scanning file: " << filename << endl;
-        string content = readFileContent(filename);
-        if (!content.empty()) {
-            // cout << "Parsing " << filename << "..." << endl;
-            // Parser parser(content);
-            // parser.parse();
-            // cout << "Done parsing " << filename << ".\n" << endl;
-            Scanner scanner(content);
-            pair<string, string> token = scanner.nextToken();
-
-            while (token.first != Scanner::eoIToken) { // Use the static member variable for comparison
-                cout << token.first << ": " << (token.second.empty() ? "N/A" : token.second) << endl;
-                token = scanner.nextToken();
+            cout << "Tokens from file " << filePath << ":" << endl;
+            for (const auto& token : tokens) {
+                cout << "Token (type: " << scanner.tokenTypeToString(token.type) 
+                     << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
             }
-            cout << endl;
-            cout << endl;
+        } else {
+            cout << "Skipping empty or non-existent file: " << filePath << endl;
         }
+        cout << endl; // Add a newline for better separation between files
     }
-
     return 0;
-
-    // string input = "int xyz, int a = 12, 13; # Now the while loop # while (xyz >= 0) { xyz = xyz - 1; }";
-    // Scanner scanner(input);
-
-    // pair<string, string> token = scanner.nextToken();
-
-    // while (token.first != Scanner::eoIToken) { // Use the static member variable for comparison
-    //     cout << token.first << ": " << (token.second.empty() ? "N/A" : token.second) << endl;
-    //     token = scanner.nextToken();
-    // }
-
-    // return 0;
 }

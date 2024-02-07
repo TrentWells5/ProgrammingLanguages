@@ -1,285 +1,150 @@
 #include "scanner.hpp"
 
-// Static member definitions
-const char Scanner::EOI = '$';
-const char Scanner::START_COMMENT = '~';
-const char Scanner::EQUAL = '=';
-const string Scanner::eoIToken = "eoI";
+Scanner::Scanner(const string& source) : source(source) {}
 
-const unordered_set<char> Scanner::WHITESPACE = {' ', '\t', '\n'};
-const unordered_set<char> Scanner::DIGITS = {'0','1','2','3','4','5','6','7','8','9'};
-const unordered_set<char> Scanner::LETTERS = Scanner::initializeLetters();
-const unordered_set<char> Scanner::LETTERS_OR_DIGITS = Scanner::initializeLettersOrDigits();
-
-const unordered_map<char, string> Scanner::OP_TABLE = {
-    {'(', "lParen"},
-    {')', "rParen"}, 
-    {'{', "lCurly"}, 
-    {'}', "rCurly"},
-    {'+', "plusSym"}, 
-    {'-', "minusSym"},
-    {'*', "timesSym"}, 
-    {'/', "divSym"},
-    {';', "semicolon"}, 
-    {',', "comma"}
-};
-
-const unordered_map<string, string> Scanner::KEYWORD_TABLE = {
-    {"begin", "beginSym"}, 
-    {"end", "endSym"}, 
-};
-
-unordered_set<char> Scanner::initializeLetters() {
-    unordered_set<char> letters;
-    for (char ch = 'a'; ch <= 'z'; ++ch) {
-        letters.insert(ch);
-    }
-    for (char ch = 'A'; ch <= 'Z'; ++ch) {
-        letters.insert(ch);
-    }
-    return letters;
+bool Scanner::isAtEnd() {
+    return current >= source.length();
 }
 
-unordered_set<char> Scanner::initializeLettersOrDigits() {
-    unordered_set<char> lettersOrDigits = Scanner::initializeLetters();
-    for (char ch = '0'; ch <= '9'; ++ch) {
-        lettersOrDigits.insert(ch);
-    }
-    return lettersOrDigits;
+void Scanner::addToken(TokenType type) {
+    addToken(type, "");
 }
 
-bool Scanner::isLetter(char ch) {
-    return LETTERS.find(ch) != LETTERS.end();
-}
-
-bool Scanner::isDigit(char ch) {
-    return DIGITS.find(ch) != DIGITS.end();
-}
-
-bool Scanner::isUnderscore(char ch) {
-    return ch == '_';
-}
-
-bool Scanner::isValidIdentifierChar(char ch) {
-    return LETTERS_OR_DIGITS.find(ch) != LETTERS_OR_DIGITS.end() || isUnderscore(ch);
-}
-
-Scanner::Scanner(const string& source) : source(source + EOI), position(0) {
-    init(); // Assuming init() sets up the initial state for scanning
-}
-
-void Scanner::init() {
-    position = 0;
-    currentText = "";
-    currentToken = "";
-}
-
-char Scanner::currentCh() {
-    if (position < source.length()) {
-        return source[position];
-    } else {
-        return EOI;
-    }
-}
-
-// move
-void Scanner::move() {
-    if (position < source.length()) {
-        position++;
-    } else {
-        error("Attempt to move beyond end of input");
+string Scanner::tokenTypeToString(TokenType type) {
+    switch (type) {
+        case TokenType::Identifier: return "Identifier";
+        case TokenType::Number: return "Number";
+        case TokenType::Assign: return "Assign";
+        case TokenType::Semicolon: return "Semicolon";
+        case TokenType::Plus: return "Plus";
+        case TokenType::Minus: return "Minus";
+        case TokenType::Multiply: return "Multiply";
+        case TokenType::Divide: return "Divide";
+        case TokenType::LeftParen: return "LeftParen";
+        case TokenType::RightParen: return "RightParen";
+        case TokenType::Begin: return "Begin";
+        case TokenType::End: return "End";
+        case TokenType::Dot: return "Dot";
+        case TokenType::Eof: return "Eof";
+        case TokenType::Unknown: return "Unknown";
+        default: return "NotImplemented";
     }
 }
 
 
-void Scanner::error(const string& message) {
-    cout << ">>> Error: " << message << endl;
+void Scanner::addToken(TokenType type, string value) {
+    if (value.empty()) {
+        value = "N/A";
+    }
+    Token token = {type, value, line};
+    tokens.push_back(token);
 }
 
-bool Scanner::atEOI() {
-    return currentCh() == EOI;
+char Scanner::advance() {
+    current++;
+    return source[current - 1];
 }
 
-void Scanner::eat() {
-    if (atEOI()) {
-        error("Cannot move beyond EOI!");
-    } else {
-        move();
-    }
+bool Scanner::match(char expected) {
+    if (isAtEnd()) return false;
+    if (source[current] != expected) return false;
+
+    current++;
+    return true;
 }
 
-string Scanner::find(char x) {
-    string result;
-    while (currentCh() != x && !atEOI()) {
-        result += currentCh();
-        eat();
-    }
-    if (atEOI()) {
-        error("EOI detected searching for " + string(1, x));
-    }
-    return result;
+char Scanner::peek() {
+    if (isAtEnd()) return '\0';
+    return source[current];
 }
 
-string Scanner::findStar(const unordered_set<char>& s) {
-    string result;
-    while (s.find(currentCh()) == s.end() && !atEOI()) {
-        result += currentCh();
-        eat();
-    }
-    if (atEOI()) {
-        error("EOI detected searching for specified set");
-    }
-    return result;
+char Scanner::peekNext() {
+    if (current + 1 >= source.length()) return '\0';
+    return source[current + 1];
 }
 
-string Scanner::skip(char x) {
-    string result;
-    while (currentCh() == x) {
-        result += currentCh();
-        eat();
-    }
-    return result;
-}
-
-string Scanner::skipStar(const unordered_set<char>& s) {
-    string result;
-    while (s.find(currentCh()) != s.end()) {
-        result += currentCh();
-        eat();
-    }
-    return result;
-}
-
-void Scanner::skipWS() {
-    skipStar(WHITESPACE);
-}
-
-void Scanner::skipComment() {
-    eat(); // Move past the start comment character
-    while (currentCh() != '\n' && !atEOI()) {
-        eat();
-    }
-    if (!atEOI()) {
-        eat(); // Move past the end comment character
-    }
-}
-
-void Scanner::jump() {
-    if (currentCh() == START_COMMENT) {
-        skipComment();
-    } else if (WHITESPACE.find(currentCh()) != WHITESPACE.end()) {
-        skipWS();
-    }
-}
-
-void Scanner::jumpStar() {
-    while (WHITESPACE.find(currentCh()) != WHITESPACE.end() || currentCh() == START_COMMENT) {
-        jump();
-    }
-}
-
-pair<string, string> Scanner::NUM() {
-    string numLiteral;
-    while (isDigit(currentCh())) {
-        numLiteral += currentCh();
-        eat();
-    }
-    return {"numConstant", numLiteral}; // Keep as string
-}
-
-
-pair<string, string> Scanner::ID() {
-    // string result = skipStar(LETTERS_OR_DIGITS);
-    // auto found = KEYWORD_TABLE.find(result);
-    // if (found != KEYWORD_TABLE.end()) {
-    //     return {found->second, ""};
-    // } else {
-    //     return {"identifier", result};
-    // }
-    string result;
-    char prevChar = '\0';
-
-    // Ensure the first character is a letter
-    if (isLetter(currentCh())) {
-        result += currentCh();
-        prevChar = currentCh();
-        eat();
-    } else {
-        // Handle error for identifiers not starting with a letter
-        return {"error", "Identifier does not start with a letter"};
-    }
-
-    // Process subsequent characters
-    while (isValidIdentifierChar(currentCh())) {
-        if (isUnderscore(currentCh()) && isUnderscore(prevChar)) {
-            // Handle consecutive underscores error
-            return {"error", "Identifier contains consecutive underscores"};
-        }
-        result += currentCh();
-        prevChar = currentCh();
-        eat();
-    }
-
-    // Check if the identifier ends with an underscore
-    if (isUnderscore(prevChar)) {
-        return {"error", "Identifier cannot end with an underscore"};
-    }
-
-    // Check if the result is a keyword
-    auto found = KEYWORD_TABLE.find(result);
-    if (found != KEYWORD_TABLE.end()) {
-        return {found->second, ""};
-    } else {
-        return {"identifier", result};
-    }
-}
-
-pair<string, string> Scanner::twoCharSym(char secondCh, const string& firstToken, const string& secondToken) {
-    eat(); // Move past the first character
-    if (currentCh() == secondCh) {
-        eat(); // Move past the second character
-        return {secondToken, ""};
-    } else {
-        return {firstToken, ""};
-    }
-}
-
-pair<string, string> Scanner::nextToken() {
-    if (atEOI()) {
-        return {eoIToken, ""}; // End of Input token
-    }
-
-    jumpStar(); // Skip whitespaces or comments
-
-    char c = currentCh();
-
-    // Handle numeric constants
-    if (DIGITS.find(c) != DIGITS.end()) {
-        return NUM();
-    }
-
-    // Handle identifiers and keywords
-    if (LETTERS.find(c) != LETTERS.end()) {
-        auto [tokenType, lexeme] = ID();
-        if (KEYWORD_TABLE.find(lexeme) != KEYWORD_TABLE.end()) {
-            return {KEYWORD_TABLE.at(lexeme), ""};
-        }
-        return {tokenType, lexeme};
-    }
-
-    // Handle two-character symbols
+void Scanner::scanToken() {
+    char c = advance();
     switch (c) {
-        case EQUAL: return twoCharSym(EQUAL, "assignSym", "equalSym");
-        default: break;
+        case '(': addToken(TokenType::LeftParen); break;
+        case ')': addToken(TokenType::RightParen); break;
+        case ';': addToken(TokenType::Semicolon); break;
+        case '.': addToken(TokenType::Dot); break;
+        case '=': addToken(TokenType::Assign); break;
+        case '+': addToken(TokenType::Plus); break; // Handle '+' operator
+        case '-': addToken(TokenType::Minus); break; // Handle '-' operator
+        case '*': addToken(TokenType::Multiply); break; // Handle '*' operator
+        case '/': addToken(TokenType::Divide); break; // Handle '/' operator
+        case '~': comment(); break;
+        default:
+            if (isDigit(c)) {
+                number();
+            } else if (isAlpha(c)) {
+                identifier();
+            } else {
+                std::cout << "Unexpected character: " << c << std::endl;
+            }
+            break;
+    }
+}
+
+
+void Scanner::number() {
+    while (isDigit(peek())) advance();
+
+    addToken(TokenType::Number, source.substr(start, current - start));
+}
+
+void Scanner::identifier() {
+    while (isAlphaNumeric(peek())) advance();
+
+    // Here, you could add specific keyword handling if needed.
+    string text = source.substr(start, current - start);
+    addToken(TokenType::Identifier, text);
+}
+
+void Scanner::comment() {
+    while (peek() != '\n' && !isAtEnd()) advance();
+}
+
+void Scanner::skipWhitespace() {
+    while (true) {
+        char c = peek();
+        switch (c) {
+            case ' ':
+            case '\r':
+            case '\t':
+                advance();
+                break;
+            case '\n':
+                line++;
+                advance();
+                break;
+            default:
+                return;
+        }
+    }
+}
+
+bool Scanner::isAlpha(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+}
+
+bool Scanner::isAlphaNumeric(char c) {
+    return isAlpha(c) || isDigit(c);
+}
+
+bool Scanner::isDigit(char c) {
+    return c >= '0' && c <= '9';
+}
+
+vector<Token> Scanner::scanTokens() {
+    while (!isAtEnd()) {
+        start = current;
+        scanToken();
+        skipWhitespace();
     }
 
-    // Handle one-character operators
-    if (OP_TABLE.find(c) != OP_TABLE.end()) {
-        eat(); // Consume the operator
-        return {OP_TABLE.at(c), ""};
-    }
-
-    // Unknown token or character
-    eat(); // Move past unknown character
-    return {"Unknown", string(1, c)};
+    tokens.push_back({TokenType::Eof, "", line});
+    return tokens;
 }
