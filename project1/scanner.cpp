@@ -83,8 +83,7 @@ void Scanner::scanToken() {
             } else if (isAlpha(c)) {
                 identifier();
             } else {
-                cout << "Unexpected character: " << c << endl;
-            }
+                cerr << "Unexpected character: '" << c << "' at line " << line << endl;            }
             break;
     }
 }
@@ -98,15 +97,13 @@ void Scanner::number() {
 void Scanner::identifier() {
     while (isAlphaNumeric(peek()) || peek() == '_') {
         if (peek() == '_' && peekNext() == '_') {
-            cerr << "Error: Consecutive underscores in identifier\n";
-            // Skip consecutive underscores or handle error as needed
+            cerr << "Error: Consecutive underscores in identifier at line " << line << "\n";            // Skip consecutive underscores or handle error as needed
             advance(); // Skip one underscore to fix the error
         }
         advance();
     }
     if (source[current - 1] == '_') {
-        cerr << "Error: Identifier ends with an underscore\n";
-        // Handle error or adjust identifier (not recommended to adjust automatically)
+        cerr << "Error: Identifier ends with an underscore at line " << line << "\n";        // Handle error or adjust identifier (not recommended to adjust automatically)
     } else {
         string text = source.substr(start, current - start);
 

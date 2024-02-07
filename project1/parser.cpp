@@ -6,7 +6,7 @@ void Parser::parse() {
     try {
         program();
     } catch (const runtime_error& error) {
-        cerr << error.what() << endl;
+        //cerr << error.what() << endl;
         // Handle parsing error (e.g., log it, halt execution, etc.)
     }
 }
@@ -17,6 +17,7 @@ void Parser::program() {
         statement();
     }
     consume(TokenType::End, "Expected 'end' after statements.");
+    // No need to consume a semicolon after 'end.'
     consume(TokenType::Dot, "Expected '.' after 'end'");
 }
 
@@ -37,11 +38,13 @@ void Parser::assignment() {
 }
 
 void Parser::expression() {
-    // Placeholder for expression parsing
-    // This method would be much more complex in a full implementation,
-    // handling arithmetic and logical expressions according to the language's grammar
-    advance(); // Naively advance past the expression for now
+    // Temporary, simplistic expression parsing
+    do {
+        advance();  // Advance past the current token
+        // Check if the next token is an operator that could be part of an expression
+    } while (!isAtEnd() && !check(TokenType::Semicolon) && !check(TokenType::RightParen));
 }
+
 
 // Utility methods for parsing
 
@@ -69,7 +72,10 @@ bool Parser::check(TokenType type) {
 
 Token Parser::consume(TokenType type, const string& errorMessage) {
     if (check(type)) return advance();
-    throw runtime_error(errorMessage);
+    Token errToken = peek(); // Get the current token where the error occurred
+    string fullErrorMessage = errorMessage + " at line " + to_string(errToken.line);
+    error(errToken, fullErrorMessage); // Use the error function to report the error
+    throw runtime_error(fullErrorMessage); // Optionally re-throw if you want to halt parsing
 }
 
 void Parser::error(const Token& token, const string& message) {
