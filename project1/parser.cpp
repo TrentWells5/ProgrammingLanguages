@@ -33,10 +33,16 @@ void Parser::statement() {
 void Parser::assignment() {
     consume(TokenType::Identifier, "Expected identifier.");
     consume(TokenType::Assign, "Expected '=' after identifier.");
-    expression(); // Parses the right-hand side of the assignment.
-    // The revised expression() method should leave the parser right before a semicolon.
-    consume(TokenType::Semicolon, "Expected ';' after expression.");
+    expression(); // This should process through the expression and stop before the semicolon.
+    
+    // After 'expression()' returns, we're expecting a semicolon as the next token.
+    if (check(TokenType::Semicolon)) {
+        advance();  // Consume the semicolon
+    } else {
+        error(peek(), "Expected ';' after expression.");
+    }
 }
+
 
 
 void Parser::expression() {
