@@ -40,6 +40,7 @@ void Scanner::addToken(TokenType type, string value) {
     tokens.push_back(token);
 }
 
+
 char Scanner::advance() {
     current++;
     return source[current - 1];
@@ -82,26 +83,36 @@ void Scanner::scanToken() {
             } else if (isAlpha(c)) {
                 identifier();
             } else {
-                std::cout << "Unexpected character: " << c << std::endl;
+                cout << "Unexpected character: " << c << endl;
             }
             break;
     }
 }
 
-
 void Scanner::number() {
     while (isDigit(peek())) advance();
-
     addToken(TokenType::Number, source.substr(start, current - start));
 }
 
-void Scanner::identifier() {
-    while (isAlphaNumeric(peek())) advance();
 
-    // Here, you could add specific keyword handling if needed.
-    string text = source.substr(start, current - start);
-    addToken(TokenType::Identifier, text);
+void Scanner::identifier() {
+    while (isAlphaNumeric(peek()) || peek() == '_') {
+        if (peek() == '_' && peekNext() == '_') {
+            cerr << "Error: Consecutive underscores in identifier\n";
+            // Skip consecutive underscores or handle error as needed
+            advance(); // Skip one underscore to fix the error
+        }
+        advance();
+    }
+    if (source[current - 1] == '_') {
+        cerr << "Error: Identifier ends with an underscore\n";
+        // Handle error or adjust identifier (not recommended to adjust automatically)
+    } else {
+        string text = source.substr(start, current - start);
+        addToken(TokenType::Identifier, text);
+    }
 }
+
 
 void Scanner::comment() {
     while (peek() != '\n' && !isAtEnd()) advance();
