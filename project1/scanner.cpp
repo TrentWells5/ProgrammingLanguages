@@ -109,7 +109,18 @@ void Scanner::identifier() {
         // Handle error or adjust identifier (not recommended to adjust automatically)
     } else {
         string text = source.substr(start, current - start);
-        addToken(TokenType::Identifier, text);
+
+        // Check if the text is a reserved keyword
+        TokenType type = TokenType::Identifier; // Default to Identifier
+        if (text == "begin") {
+            type = TokenType::Begin;
+        } else if (text == "end") {
+            type = TokenType::End;
+        }
+        // Add more keywords here as needed
+
+        // Add the token with the determined type
+        addToken(type, text);
     }
 }
 
@@ -156,6 +167,6 @@ vector<Token> Scanner::scanTokens() {
         skipWhitespace();
     }
 
-    tokens.push_back({TokenType::Eof, "", line});
+    tokens.push_back({TokenType::Eof, "N/A", line});
     return tokens;
 }

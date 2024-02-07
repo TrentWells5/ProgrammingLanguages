@@ -2,6 +2,9 @@
 #include <iostream>
 #include <sstream>
 #include "scanner.hpp"
+#include "parser.hpp"
+
+using namespace std;
 
 string readFile(const string& filePath) {
     ifstream file(filePath);
@@ -23,22 +26,31 @@ int main() {
         "a5", "a6", "a7", "a8"
     };
 
-    for (int i = 0; i < filenames.size(); ++i) {
-        string filePath = "inputFilesP1/" + filenames[i]; // Adjust directory as needed
+    for (const auto& filename : filenames) {
+        string filePath = "inputFilesP1/" + filename; // Adjust directory as needed
         string fileContent = readFile(filePath);
+
         if (!fileContent.empty()) {
+            cout << "Processing file: " << filePath << endl;
             Scanner scanner(fileContent);
             vector<Token> tokens = scanner.scanTokens();
 
-            cout << "Tokens from file " << filePath << ":" << endl;
+            // Optionally, print tokens for debugging
+            
             for (const auto& token : tokens) {
-                cout << "Token (type: " << scanner.tokenTypeToString(token.type) 
+                cout << "Token (type: " << scanner.tokenTypeToString(token.type)
                      << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
             }
+            
+
+            Parser parser(tokens);
+            parser.parse(); // Parse the token sequence
+
+            cout << "Parsing completed for file " << filePath << endl << endl;
         } else {
-            cout << "Skipping empty or non-existent file: " << filePath << endl;
+            cout << "Skipping empty or non-existent file: " << filePath << endl << endl;
         }
-        cout << endl; // Add a newline for better separation between files
     }
+
     return 0;
 }
