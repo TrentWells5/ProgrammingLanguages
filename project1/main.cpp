@@ -26,7 +26,7 @@ int main() {
         "a5", "a6", "a7", "a8"
     };
 
-    for(int i = 0; i < 1; i++){
+    for(int i = 0; i < 2; i++){
         filenames.at(i) = "inputFilesP1/" + filenames.at(i);
     }
 

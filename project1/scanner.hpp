@@ -42,6 +42,9 @@ private:
 
     // Helper methods
     bool isDigit(char ch);
+    bool isLetter(char ch);
+    bool isUnderscore(char ch);
+    bool isValidIdentifierChar(char ch);
     void error(const string& message);
     char currentCh();
     void move();

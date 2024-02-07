@@ -48,21 +48,21 @@ unordered_set<char> Scanner::initializeLettersOrDigits() {
     return lettersOrDigits;
 }
 
-// bool isLetter(char ch) const {
-//     return LETTERS.find(ch) != LETTERS.end();
-// }
+bool Scanner::isLetter(char ch) {
+    return LETTERS.find(ch) != LETTERS.end();
+}
 
 bool Scanner::isDigit(char ch) {
     return DIGITS.find(ch) != DIGITS.end();
 }
 
-// bool isUnderscore(char ch) const {
-//     return ch == '_';
-// }
+bool Scanner::isUnderscore(char ch) {
+    return ch == '_';
+}
 
-// bool isValidIdentifierChar(char ch) const {
-//     return LETTERS_OR_DIGITS.find(ch) != LETTERS_OR_DIGITS.end() || isUnderscore(ch);
-// }
+bool Scanner::isValidIdentifierChar(char ch) {
+    return LETTERS_OR_DIGITS.find(ch) != LETTERS_OR_DIGITS.end() || isUnderscore(ch);
+}
 
 Scanner::Scanner(const string& source) : source(source + EOI), position(0) {
     init(); // Assuming init() sets up the initial state for scanning
@@ -189,50 +189,49 @@ pair<string, string> Scanner::NUM() {
 
 
 pair<string, string> Scanner::ID() {
-    string result = skipStar(LETTERS_OR_DIGITS);
+    // string result = skipStar(LETTERS_OR_DIGITS);
+    // auto found = KEYWORD_TABLE.find(result);
+    // if (found != KEYWORD_TABLE.end()) {
+    //     return {found->second, ""};
+    // } else {
+    //     return {"identifier", result};
+    // }
+    string result;
+    char prevChar = '\0';
+
+    // Ensure the first character is a letter
+    if (isLetter(currentCh())) {
+        result += currentCh();
+        prevChar = currentCh();
+        eat();
+    } else {
+        // Handle error for identifiers not starting with a letter
+        return {"error", "Identifier does not start with a letter"};
+    }
+
+    // Process subsequent characters
+    while (isValidIdentifierChar(currentCh())) {
+        if (isUnderscore(currentCh()) && isUnderscore(prevChar)) {
+            // Handle consecutive underscores error
+            return {"error", "Identifier contains consecutive underscores"};
+        }
+        result += currentCh();
+        prevChar = currentCh();
+        eat();
+    }
+
+    // Check if the identifier ends with an underscore
+    if (isUnderscore(prevChar)) {
+        return {"error", "Identifier cannot end with an underscore"};
+    }
+
+    // Check if the result is a keyword
     auto found = KEYWORD_TABLE.find(result);
     if (found != KEYWORD_TABLE.end()) {
         return {found->second, ""};
     } else {
         return {"identifier", result};
     }
-    // string result;
-    //     char prevChar = '\0';
-
-    //     // Ensure the first character is a letter
-    //     if (isLetter(currentChar())) {
-    //         result += currentChar();
-    //         prevChar = currentChar();
-    //         eat();
-    //     } else {
-    //         // Handle error for identifiers not starting with a letter
-    //         return {"error", "Identifier does not start with a letter"};
-    //     }
-
-    //     // Process subsequent characters
-    //     while (isValidIdentifierChar(currentChar())) {
-    //         if (isUnderscore(currentChar()) && isUnderscore(prevChar)) {
-    //             // Handle consecutive underscores error
-    //             return {"error", "Identifier contains consecutive underscores"};
-    //         }
-    //         result += currentChar();
-    //         prevChar = currentChar();
-    //         eat();
-    //     }
-
-    //     // Check if the identifier ends with an underscore
-    //     if (isUnderscore(prevChar)) {
-    //         return {"error", "Identifier cannot end with an underscore"};
-    //     }
-
-    //     // Check if the result is a keyword
-    //     auto found = KEYWORD_TABLE.find(result);
-    //     if (found != KEYWORD_TABLE.end()) {
-    //         return {found->second, ""};
-    //     } else {
-    //         return {"identifier", result};
-    //     }
-    
 }
 
 pair<string, string> Scanner::twoCharSym(char secondCh, const string& firstToken, const string& secondToken) {
