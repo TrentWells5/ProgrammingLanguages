@@ -31,19 +31,38 @@ void Parser::statement() {
 }
 
 void Parser::assignment() {
-    Token identifier = consume(TokenType::Identifier, "Expected identifier.");
+    consume(TokenType::Identifier, "Expected identifier.");
     consume(TokenType::Assign, "Expected '=' after identifier.");
-    expression();
+    expression(); // Parses the right-hand side of the assignment.
+    // The revised expression() method should leave the parser right before a semicolon.
     consume(TokenType::Semicolon, "Expected ';' after expression.");
 }
 
+
 void Parser::expression() {
-    // Temporary, simplistic expression parsing
-    do {
-        advance();  // Advance past the current token
-        // Check if the next token is an operator that could be part of an expression
-    } while (!isAtEnd() && !check(TokenType::Semicolon) && !check(TokenType::RightParen));
+    if (check(TokenType::LeftParen)) {
+        // Manually consume the '(' to enter the subexpression
+        advance();  // Consume the '('
+        expression();  // Recursively parse the subexpression
+        
+        // Now, expect a ')'. If it's not there, report an error.
+        if (check(TokenType::RightParen)) {
+            advance();  // Consume the ')'
+        } else {
+            error(peek(), "Expected ')' after expression.");
+        }
+    } else {
+        // This loop assumes any token except semicolon, right parenthesis, or EOF is part of the expression.
+        while (!check(TokenType::Semicolon) && !check(TokenType::RightParen) && !isAtEnd() && !check(TokenType::End)) {
+            advance(); // Advance through the tokens of the expression
+        }
+    }
+
+    // Since this approach may stop at tokens that are not semicolons (e.g., right parentheses or EOF),
+    // ensure the calling context (like `assignment`) properly handles the expected semicolon.
 }
+
+
 
 
 // Utility methods for parsing

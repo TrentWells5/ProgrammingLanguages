@@ -37,10 +37,10 @@ int main() {
 
             // Optionally, print tokens for debugging
             
-            // for (const auto& token : tokens) {
-            //     cout << "Token (type: " << scanner.tokenTypeToString(token.type)
-            //          << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
-            // }
+            for (const auto& token : tokens) {
+                cout << "Token (type: " << scanner.tokenTypeToString(token.type)
+                     << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
+            }
             
 
             Parser parser(tokens);
