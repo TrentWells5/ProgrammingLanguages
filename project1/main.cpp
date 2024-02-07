@@ -26,19 +26,38 @@ int main() {
         "a5", "a6", "a7", "a8"
     };
 
-    for(int i = 0; i < 8; i++){
+    for(int i = 0; i < 1; i++){
         filenames.at(i) = "inputFilesP1/" + filenames.at(i);
     }
 
     for (const auto& filename : filenames) {
         string content = readFileContent(filename);
         if (!content.empty()) {
-            cout << "Parsing " << filename << "..." << endl;
-            Parser parser(content);
-            parser.parse();
-            cout << "Done parsing " << filename << ".\n" << endl;
+            // cout << "Parsing " << filename << "..." << endl;
+            // Parser parser(content);
+            // parser.parse();
+            // cout << "Done parsing " << filename << ".\n" << endl;
+            Scanner scanner(content);
+            pair<string, string> token = scanner.nextToken();
+
+            while (token.first != Scanner::eoIToken) { // Use the static member variable for comparison
+                cout << token.first << ": " << (token.second.empty() ? "N/A" : token.second) << endl;
+                token = scanner.nextToken();
+            }
         }
     }
 
     return 0;
+
+    // string input = "int xyz, int a = 12, 13; # Now the while loop # while (xyz >= 0) { xyz = xyz - 1; }";
+    // Scanner scanner(input);
+
+    // pair<string, string> token = scanner.nextToken();
+
+    // while (token.first != Scanner::eoIToken) { // Use the static member variable for comparison
+    //     cout << token.first << ": " << (token.second.empty() ? "N/A" : token.second) << endl;
+    //     token = scanner.nextToken();
+    // }
+
+    // return 0;
 }
