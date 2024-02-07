@@ -9,7 +9,7 @@
 class Parser {
 public:
     explicit Parser(const vector<Token>& tokens);
-    void parse(); // Main method to start parsing
+    bool parse(); // Main method to start parsing
 
 private:
     const vector<Token>& tokens;

@@ -44,9 +44,14 @@ int main() {
             
 
             Parser parser(tokens);
-            parser.parse(); // Parse the token sequence
+            bool success = parser.parse(); // Parse the token sequence and check for success
 
-            cout << "Parsing completed for file " << filePath << endl << endl;
+            if (success) {
+                cout << "Success! Parsing completed successfully for file " << filePath << endl;
+            } else {
+                cout << "Unsuccessful! Parsing encountered errors for file " << filePath << endl;
+            }
+            cout << endl;
         } else {
             cout << "Skipping empty or non-existent file: " << filePath << endl << endl;
         }

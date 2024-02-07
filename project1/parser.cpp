@@ -2,12 +2,15 @@
 
 Parser::Parser(const vector<Token>& tokens) : tokens(tokens) {}
 
-void Parser::parse() {
+bool Parser::parse() {
     try {
         program();
+        // If no exceptions were thrown, parsing is considered successful.
+        return true;
     } catch (const runtime_error& error) {
-        //cerr << error.what() << endl;
-        // Handle parsing error (e.g., log it, halt execution, etc.)
+        cerr << error.what() << endl;
+        // Return false to indicate parsing was unsuccessful.
+        return false;
     }
 }
 
@@ -46,26 +49,29 @@ void Parser::assignment() {
 
 
 void Parser::expression() {
-    if (check(TokenType::LeftParen)) {
-        // Manually consume the '(' to enter the subexpression
-        advance();  // Consume the '('
-        expression();  // Recursively parse the subexpression
-        
-        // Now, expect a ')'. If it's not there, report an error.
-        if (check(TokenType::RightParen)) {
-            advance();  // Consume the ')'
+    int parenDepth = 0;
+    while (!isAtEnd()) {
+        if (check(TokenType::LeftParen)) {
+            parenDepth++;
+            advance(); // Consume the '('
+        } else if (check(TokenType::RightParen)) {
+            if (parenDepth == 0) {
+                // If there are no open parentheses to match, this is an error or the end of the current expression.
+                break;
+            }
+            parenDepth--;
+            advance(); // Consume the ')'
+        } else if (check(TokenType::Semicolon) && parenDepth == 0) {
+            // Only consider a semicolon as ending the expression if not within parentheses.
+            break;
         } else {
-            error(peek(), "Expected ')' after expression.");
-        }
-    } else {
-        // This loop assumes any token except semicolon, right parenthesis, or EOF is part of the expression.
-        while (!check(TokenType::Semicolon) && !check(TokenType::RightParen) && !isAtEnd() && !check(TokenType::End)) {
-            advance(); // Advance through the tokens of the expression
+            advance(); // Advance through other tokens within the expression.
         }
     }
 
-    // Since this approach may stop at tokens that are not semicolons (e.g., right parentheses or EOF),
-    // ensure the calling context (like `assignment`) properly handles the expected semicolon.
+    if (parenDepth != 0) {
+        error(peek(), "Unmatched parentheses in expression.");
+    }
 }
 
 
