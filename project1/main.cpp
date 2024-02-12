@@ -27,7 +27,7 @@ int main() {
     };
 
     for (const auto& filename : filenames) {
-        string filePath = "inputFilesP1/" + filename; // Adjust directory as needed
+        string filePath = "inputFilesP1/" + filename;
         string fileContent = readFile(filePath);
 
         if (!fileContent.empty()) {
@@ -36,13 +36,11 @@ int main() {
             vector<Token> tokens = scanner.scanTokens();
 
             // Optionally, print tokens for debugging
+            // for (const auto& token : tokens) {
+            //     cout << "Token (type: " << scanner.tokenTypeToString(token.type)
+            //          << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
+            // }
             
-            for (const auto& token : tokens) {
-                cout << "Token (type: " << scanner.tokenTypeToString(token.type)
-                     << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
-            }
-            
-
             Parser parser(tokens);
             bool success = parser.parse(); // Parse the token sequence and check for success
 

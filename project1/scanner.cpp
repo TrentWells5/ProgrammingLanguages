@@ -72,10 +72,10 @@ void Scanner::scanToken() {
         case ';': addToken(TokenType::Semicolon); break;
         case '.': addToken(TokenType::Dot); break;
         case '=': addToken(TokenType::Assign); break;
-        case '+': addToken(TokenType::Plus); break; // Handle '+' operator
-        case '-': addToken(TokenType::Minus); break; // Handle '-' operator
-        case '*': addToken(TokenType::Multiply); break; // Handle '*' operator
-        case '/': addToken(TokenType::Divide); break; // Handle '/' operator
+        case '+': addToken(TokenType::Plus); break;
+        case '-': addToken(TokenType::Minus); break;
+        case '*': addToken(TokenType::Multiply); break;
+        case '/': addToken(TokenType::Divide); break;
         case '~': comment(); break;
         default:
             if (isDigit(c)) {
@@ -83,7 +83,8 @@ void Scanner::scanToken() {
             } else if (isAlpha(c)) {
                 identifier();
             } else {
-                cerr << "Unexpected character: '" << c << "' at line " << line << endl;            }
+                cerr << "Unexpected character: '" << c << "' at line " << line << endl; 
+            }
             break;
     }
 }
@@ -97,26 +98,22 @@ void Scanner::number() {
 void Scanner::identifier() {
     while (isAlphaNumeric(peek()) || peek() == '_') {
         if (peek() == '_' && peekNext() == '_') {
-            cerr << "Error: Consecutive underscores in identifier at line " << line << "\n";            // Skip consecutive underscores or handle error as needed
-            advance(); // Skip one underscore to fix the error
+            cerr << "Error: Consecutive underscores in identifier at line " << line << "\n";
+            advance();
         }
         advance();
     }
     if (source[current - 1] == '_') {
-        cerr << "Error: Identifier ends with an underscore at line " << line << "\n";        // Handle error or adjust identifier (not recommended to adjust automatically)
+        cerr << "Error: Identifier ends with an underscore at line " << line << "\n";
     } else {
         string text = source.substr(start, current - start);
 
-        // Check if the text is a reserved keyword
-        TokenType type = TokenType::Identifier; // Default to Identifier
+        TokenType type = TokenType::Identifier;
         if (text == "begin") {
             type = TokenType::Begin;
         } else if (text == "end") {
             type = TokenType::End;
         }
-        // Add more keywords here as needed
-
-        // Add the token with the determined type
         addToken(type, text);
     }
 }

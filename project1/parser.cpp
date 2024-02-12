@@ -5,10 +5,8 @@ Parser::Parser(const vector<Token>& tokens) : tokens(tokens) {}
 bool Parser::parse() {
     try {
         program();
-        // If no exceptions were thrown, parsing is considered successful.
         return true;
     } catch (const runtime_error& error) {
-        cerr << error.what() << endl;
         // Return false to indicate parsing was unsuccessful.
         return false;
     }
@@ -20,7 +18,6 @@ void Parser::program() {
         statement();
     }
     consume(TokenType::End, "Expected 'end' after statements.");
-    // No need to consume a semicolon after 'end.'
     consume(TokenType::Dot, "Expected '.' after 'end'");
 }
 
@@ -36,36 +33,31 @@ void Parser::statement() {
 void Parser::assignment() {
     consume(TokenType::Identifier, "Expected identifier.");
     consume(TokenType::Assign, "Expected '=' after identifier.");
-    expression(); // This should process through the expression and stop before the semicolon.
-    
-    // After 'expression()' returns, we're expecting a semicolon as the next token.
+    expression();
+
     if (check(TokenType::Semicolon)) {
-        advance();  // Consume the semicolon
+        advance();
     } else {
         error(peek(), "Expected ';' after expression.");
     }
 }
-
-
 
 void Parser::expression() {
     int parenDepth = 0;
     while (!isAtEnd()) {
         if (check(TokenType::LeftParen)) {
             parenDepth++;
-            advance(); // Consume the '('
+            advance();
         } else if (check(TokenType::RightParen)) {
             if (parenDepth == 0) {
-                // If there are no open parentheses to match, this is an error or the end of the current expression.
                 break;
             }
             parenDepth--;
-            advance(); // Consume the ')'
+            advance();
         } else if (check(TokenType::Semicolon) && parenDepth == 0) {
-            // Only consider a semicolon as ending the expression if not within parentheses.
             break;
         } else {
-            advance(); // Advance through other tokens within the expression.
+            advance();
         }
     }
 
@@ -73,11 +65,6 @@ void Parser::expression() {
         error(peek(), "Unmatched parentheses in expression.");
     }
 }
-
-
-
-
-// Utility methods for parsing
 
 bool Parser::isAtEnd() {
     return peek().type == TokenType::Eof;
@@ -103,14 +90,13 @@ bool Parser::check(TokenType type) {
 
 Token Parser::consume(TokenType type, const string& errorMessage) {
     if (check(type)) return advance();
-    Token errToken = peek(); // Get the current token where the error occurred
+    Token errToken = peek();
     string fullErrorMessage = errorMessage + " at line " + to_string(errToken.line);
-    error(errToken, fullErrorMessage); // Use the error function to report the error
-    throw runtime_error(fullErrorMessage); // Optionally re-throw if you want to halt parsing
+    error(errToken, fullErrorMessage);
+    throw runtime_error(fullErrorMessage);
 }
 
 void Parser::error(const Token& token, const string& message) {
-    // Placeholder for error handling
     cerr << "Parse error at line " << token.line << ": " << message << endl;
     throw runtime_error(message);
 }

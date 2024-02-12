@@ -1,15 +1,15 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-#include "scanner.hpp" // Include the scanner header for Token and TokenType
+#include "scanner.hpp"
 #include <vector>
 #include <string>
-#include <stdexcept> // For std::runtime_error
+#include <stdexcept> 
 
 class Parser {
 public:
-    explicit Parser(const vector<Token>& tokens);
-    bool parse(); // Main method to start parsing
+    Parser(const vector<Token>& tokens);
+    bool parse();
 
 private:
     const vector<Token>& tokens;
@@ -23,14 +23,12 @@ private:
     Token consume(TokenType type, const string& errorMessage);
     void synchronize();
 
-    // Parsing methods
     void program();
     void statement();
     void expression();
     void assignment();
 
-    // Utility methods
     void error(const Token& token, const string& message);
 };
 
-#endif // PARSER_HPP
+#endif

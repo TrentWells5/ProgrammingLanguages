@@ -8,7 +8,6 @@
 
 using namespace std;
 
-
 enum class TokenType {
     Begin, End, Identifier, Number, Assign, Semicolon, Plus, Minus, Multiply, Divide, LeftParen, RightParen, Dot, Comment, Unknown, Eof
 };
