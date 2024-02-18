@@ -22,6 +22,7 @@ private:
     bool check(TokenType type);
     Token consume(TokenType type, const string& errorMessage);
     void synchronize();
+    void validateIdentifier(const Token& token);
 
     void program();
     void statement();

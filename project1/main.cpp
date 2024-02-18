@@ -35,11 +35,11 @@ int main() {
             Scanner scanner(fileContent);
             vector<Token> tokens = scanner.scanTokens();
 
-            // Optionally, print tokens for debugging
-            // for (const auto& token : tokens) {
-            //     cout << "Token (type: " << scanner.tokenTypeToString(token.type)
-            //          << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
-            // }
+            //Optionally, print tokens for debugging
+            for (const auto& token : tokens) {
+                cout << "Token (type: " << scanner.tokenTypeToString(token.type)
+                     << ", value: '" << token.value << "', line: " << token.line << ")" << endl;
+            }
             
             Parser parser(tokens);
             bool success = parser.parse(); // Parse the token sequence and check for success

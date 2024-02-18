@@ -31,7 +31,8 @@ void Parser::statement() {
 }
 
 void Parser::assignment() {
-    consume(TokenType::Identifier, "Expected identifier.");
+    Token identifierToken = consume(TokenType::Identifier, "Expected identifier.");
+    validateIdentifier(identifierToken); // Call to validate the identifier
     consume(TokenType::Assign, "Expected '=' after identifier.");
     expression();
 
@@ -41,6 +42,24 @@ void Parser::assignment() {
         error(peek(), "Expected ';' after expression.");
     }
 }
+
+
+void Parser::validateIdentifier(const Token& token) {
+    // Assuming token.value contains the actual text of the identifier
+    if (!token.value.empty() && token.value.back() == '_') {
+        error(token, "Identifier cannot end with an underscore.");
+    }
+
+    // Check for consecutive underscores within the identifier
+    if (token.value.find("__") != std::string::npos) {
+        error(token, "Identifier cannot contain consecutive underscores.");
+    }
+
+    // Here, token.value is used in place of what was previously referred to as token.lexeme
+    // Additional identifier validation rules can be implemented here as needed
+}
+
+
 
 void Parser::expression() {
     int parenDepth = 0;

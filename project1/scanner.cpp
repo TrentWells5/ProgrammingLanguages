@@ -97,26 +97,19 @@ void Scanner::number() {
 
 void Scanner::identifier() {
     while (isAlphaNumeric(peek()) || peek() == '_') {
-        if (peek() == '_' && peekNext() == '_') {
-            cerr << "Error: Consecutive underscores in identifier at line " << line << "\n";
-            advance();
-        }
         advance();
     }
-    if (source[current - 1] == '_') {
-        cerr << "Error: Identifier ends with an underscore at line " << line << "\n";
-    } else {
-        string text = source.substr(start, current - start);
+    string text = source.substr(start, current - start);
 
-        TokenType type = TokenType::Identifier;
-        if (text == "begin") {
-            type = TokenType::Begin;
-        } else if (text == "end") {
-            type = TokenType::End;
-        }
-        addToken(type, text);
+    TokenType type = TokenType::Identifier;
+    if (text == "begin") {
+        type = TokenType::Begin;
+    } else if (text == "end") {
+        type = TokenType::End;
     }
+    addToken(type, text);
 }
+
 
 
 void Scanner::comment() {
