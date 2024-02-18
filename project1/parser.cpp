@@ -45,18 +45,12 @@ void Parser::assignment() {
 
 
 void Parser::validateIdentifier(const Token& token) {
-    // Assuming token.value contains the actual text of the identifier
     if (!token.value.empty() && token.value.back() == '_') {
         error(token, "Identifier cannot end with an underscore.");
     }
-
-    // Check for consecutive underscores within the identifier
     if (token.value.find("__") != std::string::npos) {
         error(token, "Identifier cannot contain consecutive underscores.");
     }
-
-    // Here, token.value is used in place of what was previously referred to as token.lexeme
-    // Additional identifier validation rules can be implemented here as needed
 }
 
 
@@ -110,7 +104,7 @@ bool Parser::check(TokenType type) {
 Token Parser::consume(TokenType type, const string& errorMessage) {
     if (check(type)) return advance();
     Token errToken = peek();
-    string fullErrorMessage = errorMessage + " at line " + to_string(errToken.line);
+    string fullErrorMessage = errorMessage;
     error(errToken, fullErrorMessage);
     throw runtime_error(fullErrorMessage);
 }
