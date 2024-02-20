@@ -1,5 +1,5 @@
 begin
-int a; int b;
+var a; var b;
   a = b;
   a = b+2;
 end.

@@ -76,6 +76,7 @@ void Scanner::scanToken() {
         case '-': addToken(TokenType::Minus); break;
         case '*': addToken(TokenType::Multiply); break;
         case '/': addToken(TokenType::Divide); break;
+        case ',': addToken(TokenType::Comma); break;
         case '~': comment(); break;
         default:
             if (isDigit(c)) {
@@ -102,13 +103,12 @@ void Scanner::identifier() {
     string text = source.substr(start, current - start);
 
     TokenType type = TokenType::Identifier;
-    if (text == "begin") {
-        type = TokenType::Begin;
-    } else if (text == "end") {
-        type = TokenType::End;
-    }
+    if (text == "begin") type = TokenType::Begin;
+    else if (text == "end") type = TokenType::End;
+    else if (text == "var") type = TokenType::Var; // Recognize var as a keyword
     addToken(type, text);
 }
+
 
 
 

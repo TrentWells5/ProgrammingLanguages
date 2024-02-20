@@ -15,10 +15,26 @@ bool Parser::parse() {
 void Parser::program() {
     consume(TokenType::Begin, "Expected 'begin' at the start of the program.");
     while (!check(TokenType::End) && !isAtEnd()) {
-        statement();
+        if (match(TokenType::Var)) {
+            declaration();
+        } else {
+            statement();
+        }
     }
     consume(TokenType::End, "Expected 'end' after statements.");
     consume(TokenType::Dot, "Expected '.' after 'end'");
+}
+
+void Parser::declaration() {
+    do {
+        Token varName = consume(TokenType::Identifier, "Expected variable name.");
+        if (declaredVariables.find(varName.value) != declaredVariables.end()) {
+            error(varName, "Illegal redefinition " + varName.value);
+        }
+        declaredVariables.insert(varName.value);
+        // Optionally handle initialization or just move to the next variable/semicolon
+    } while (match(TokenType::Comma)); // Keep looking for more variables separated by commas
+    consume(TokenType::Semicolon, "Expected ';' after variable declaration.");
 }
 
 void Parser::statement() {
@@ -51,9 +67,18 @@ void Parser::validateIdentifier(const Token& token) {
     if (token.value.find("__") != std::string::npos) {
         error(token, "Identifier cannot contain consecutive underscores.");
     }
+    if (declaredVariables.find(token.value) == declaredVariables.end()) {
+        error(token, "Undefined variable " + token.value);
+    }
 }
 
-
+bool Parser::match(TokenType type) {
+    if (check(type)) {
+        advance();
+        return true;
+    }
+    return false;
+}
 
 void Parser::expression() {
     int parenDepth = 0;

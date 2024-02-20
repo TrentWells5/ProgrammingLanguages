@@ -51,12 +51,12 @@ int main(int argc, char* argv[]) {
 
     if (string(argv[1]) == "all") {
         vector<string> filenames = {
-            "a1", "a2", "a3", "a4",
-            "a5", "a6", "a7", "a8"
+            "a1.in", "a2.in", "a3.in", "a4.in",
+            "a5.in", "a6.in", "a7.in", "a8.in"
         };
         
         for (const auto& filename : filenames) {
-            string filePath = "inputFilesP1/" + filename;
+            string filePath = "inputFilesP2/" + filename;
             processFile(filePath);
         }
     } else {

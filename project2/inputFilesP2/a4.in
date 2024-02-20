@@ -1,6 +1,6 @@
 begin
-int a, b, c, hello;
-int b;
+var a, b, c, hello;
+var b;
 a = b;
 a = b+2;
 b = (c+hello) * (a - 5);

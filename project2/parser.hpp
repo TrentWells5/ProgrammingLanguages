@@ -4,6 +4,7 @@
 #include "scanner.hpp"
 #include <vector>
 #include <string>
+#include <set>
 #include <stdexcept> 
 
 class Parser {
@@ -14,6 +15,7 @@ public:
 private:
     const vector<Token>& tokens;
     int current = 0;
+    set<string> declaredVariables;
 
     bool isAtEnd();
     Token advance();
@@ -23,6 +25,8 @@ private:
     Token consume(TokenType type, const string& errorMessage);
     void synchronize();
     void validateIdentifier(const Token& token);
+    bool match(TokenType type);
+    void declaration();
 
     void program();
     void statement();
