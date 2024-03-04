@@ -2,7 +2,7 @@
 ~ it actually has two comments ...
 
 begin
-  var a_sdf,b,c,d,e,f,ghijk,hello;
+  int a_sdf,b,c,d,e,f,ghijk,hello;
   a_sdf = b+c+d+e+f+ghijk;
   b (c+hello) * (a - 5);
 end.
