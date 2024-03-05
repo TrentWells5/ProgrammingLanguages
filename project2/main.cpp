@@ -34,6 +34,11 @@ void processFile(const string& filePath) {
 
         if (success) {
             cout << "Success! Parsing completed successfully for file " << filePath << endl;
+            // Assuming you want to generate RPN output for each file processed
+            // Create an output filename based on the input filename
+            string outputFileName = filePath + ".rpn";
+            parser.outputRPNInstructions(outputFileName);
+            cout << "RPN code generated and stored in: " << outputFileName << endl;
         } else {
             cout << "Unsuccessful! Parsing encountered errors for file " << filePath << endl;
         }
@@ -42,6 +47,7 @@ void processFile(const string& filePath) {
         cout << "Skipping empty or non-existent file: " << filePath << endl << endl;
     }
 }
+
 
 int main(int argc, char* argv[]) {
     if (argc != 2) {

@@ -48,15 +48,11 @@ void Parser::statement() {
 
 void Parser::assignment() {
     Token identifierToken = consume(TokenType::Identifier, "Expected identifier.");
-    validateIdentifier(identifierToken); // Call to validate the identifier
+    validateIdentifier(identifierToken);
     consume(TokenType::Assign, "Expected '=' after identifier.");
     expression();
-
-    if (check(TokenType::Semicolon)) {
-        advance();
-    } else {
-        error(peek(), "Expected ';' after expression.");
-    }
+    addRPNInstruction("STORE", identifierToken.value);
+    consume(TokenType::Semicolon, "Expected ';' after expression.");
 }
 
 
@@ -81,27 +77,34 @@ bool Parser::match(TokenType type) {
 }
 
 void Parser::expression() {
-    int parenDepth = 0;
-    while (!isAtEnd()) {
-        if (check(TokenType::LeftParen)) {
-            parenDepth++;
-            advance();
-        } else if (check(TokenType::RightParen)) {
-            if (parenDepth == 0) {
-                break;
-            }
-            parenDepth--;
-            advance();
-        } else if (check(TokenType::Semicolon) && parenDepth == 0) {
-            break;
-        } else {
-            advance();
-        }
+    // This simplified version assumes binary operations are left-associative and ignores operator precedence
+    term(); // Process the first term
+    while (match(TokenType::Plus) || match(TokenType::Minus)) {
+        std::string op = previous().type == TokenType::Plus ? "PLUS" : "MINUS";
+        term(); // Process the next term
+        addRPNInstruction(op); // Add the operation after its operands
     }
+}
 
-    if (parenDepth != 0) {
-        error(peek(), "Unmatched parentheses in expression.");
+void Parser::term() {
+    factor(); // Process the first factor
+    while (match(TokenType::Multiply) || match(TokenType::Divide)) {
+        std::string op = previous().type == TokenType::Multiply ? "TIMES" : "DIV";
+        factor(); // Process the next factor
+        addRPNInstruction(op); // Add the operation after its operands
     }
+}
+
+void Parser::factor() {
+    if (match(TokenType::Number)) {
+        addRPNInstruction("NUM", previous().value);
+    } else if (match(TokenType::LeftParen)) {
+        expression();
+        consume(TokenType::RightParen, "Expected ')'.");
+    } else if (match(TokenType::Identifier)) {
+        addRPNInstruction("RVAL", previous().value);
+    }
+    // Extend with more cases as necessary
 }
 
 bool Parser::isAtEnd() {
@@ -151,5 +154,22 @@ void Parser::synchronize() {
             default:
                 advance();
         }
+    }
+}
+
+void Parser::addRPNInstruction(const std::string& operation, const std::string& operand) {
+    this->rpnInstructions.push_back(RPNInstruction(operation, operand));
+}
+
+// Inside parser.cpp, as part of the Parser class implementation
+void Parser::outputRPNInstructions(const std::string& filename) {
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (const auto& instr : this->rpnInstructions) { // this-> is optional here
+            file << "['" << instr.operation << "', '" << (instr.operand.empty() ? "N/A" : instr.operand) << "']\n";
+        }
+        file.close();
+    } else {
+        std::cerr << "Unable to open file for writing RPN instructions: " << filename << std::endl;
     }
 }
