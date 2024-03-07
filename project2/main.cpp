@@ -34,9 +34,7 @@ void processFile(const string& filePath) {
 
         if (success) {
             cout << "Success! Parsing completed successfully for file " << filePath << endl;
-            // Assuming you want to generate RPN output for each file processed
-            // Create an output filename based on the input filename
-            string outputFileName = filePath + ".rpn";
+            string outputFileName = filePath.substr(13) + ".rpn";
             parser.outputRPNInstructions(outputFileName);
             cout << "RPN code generated and stored in: " << outputFileName << endl;
         } else {

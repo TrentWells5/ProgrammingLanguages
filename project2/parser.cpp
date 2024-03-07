@@ -7,7 +7,6 @@ bool Parser::parse() {
         program();
         return true;
     } catch (const runtime_error& error) {
-        // Return false to indicate parsing was unsuccessful.
         return false;
     }
 }
@@ -32,8 +31,7 @@ void Parser::declaration() {
             error(varName, "Illegal redefinition " + varName.value);
         }
         declaredVariables.insert(varName.value);
-        // Optionally handle initialization or just move to the next variable/semicolon
-    } while (match(TokenType::Comma)); // Keep looking for more variables separated by commas
+    } while (match(TokenType::Comma)); 
     consume(TokenType::Semicolon, "Expected ';' after variable declaration.");
 }
 
@@ -77,21 +75,20 @@ bool Parser::match(TokenType type) {
 }
 
 void Parser::expression() {
-    // This simplified version assumes binary operations are left-associative and ignores operator precedence
-    term(); // Process the first term
+    term(); 
     while (match(TokenType::Plus) || match(TokenType::Minus)) {
         std::string op = previous().type == TokenType::Plus ? "PLUS" : "MINUS";
-        term(); // Process the next term
-        addRPNInstruction(op); // Add the operation after its operands
+        term(); 
+        addRPNInstruction(op);
     }
 }
 
 void Parser::term() {
-    factor(); // Process the first factor
+    factor(); 
     while (match(TokenType::Multiply) || match(TokenType::Divide)) {
         std::string op = previous().type == TokenType::Multiply ? "TIMES" : "DIV";
-        factor(); // Process the next factor
-        addRPNInstruction(op); // Add the operation after its operands
+        factor(); 
+        addRPNInstruction(op);
     }
 }
 
@@ -104,7 +101,6 @@ void Parser::factor() {
     } else if (match(TokenType::Identifier)) {
         addRPNInstruction("RVAL", previous().value);
     }
-    // Extend with more cases as necessary
 }
 
 bool Parser::isAtEnd() {
@@ -161,11 +157,10 @@ void Parser::addRPNInstruction(const std::string& operation, const std::string& 
     this->rpnInstructions.push_back(RPNInstruction(operation, operand));
 }
 
-// Inside parser.cpp, as part of the Parser class implementation
 void Parser::outputRPNInstructions(const std::string& filename) {
     std::ofstream file(filename);
     if (file.is_open()) {
-        for (const auto& instr : this->rpnInstructions) { // this-> is optional here
+        for (const auto& instr : this->rpnInstructions) {
             file << "['" << instr.operation << "', '" << (instr.operand.empty() ? "N/A" : instr.operand) << "']\n";
         }
         file.close();

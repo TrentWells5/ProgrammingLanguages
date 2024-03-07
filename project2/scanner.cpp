@@ -105,7 +105,7 @@ void Scanner::identifier() {
     TokenType type = TokenType::Identifier;
     if (text == "begin") type = TokenType::Begin;
     else if (text == "end") type = TokenType::End;
-    else if (text == "var") type = TokenType::Var; // Recognize var as a keyword
+    else if (text == "var") type = TokenType::Var;
     addToken(type, text);
 }
 

@@ -6,4 +6,4 @@ main: main.o scanner.o parser.o
 %.o:%.cpp
 	$(CXX) $(CXX_FLAGS) -c -o $@ $<
 clean:
-	rm -rf *.o main *.txt
+	rm -rf *.o main *.rpn
