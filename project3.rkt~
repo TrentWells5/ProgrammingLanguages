@@ -1,0 +1,18 @@
+#lang racket
+(define (evalu8 expression env)
+  (if (pair? expression)
+      (let ((op (car expression))
+            (arg1 (evalu8 (cadr expression) env))
+            (arg2 (evalu8 (caddr expression) env)))
+        (cond ((eq? op '+) (+ arg1 arg2))
+              ((eq? op '*) (* arg1 arg2))
+              ((eq? op 'equal?) (if (= arg1 arg2) #t #f))
+              ((eq? op 'less?) (if (< arg1 arg2) #t #f))
+              (else (error "Unknown operation"))))
+      (if (number? expression)
+          expression
+          (let ((binding (assoc expression env)))
+            (if binding
+                (cdr binding)
+                (error "Identifier not bound" expression))))))
+

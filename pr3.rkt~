@@ -1,0 +1,35 @@
+#lang racket
+(define (lookup var env)
+  (cond ((null? env) (error "Unbound variable" var))
+        ((equal? (caar env) var) (cdar env))
+        (else (lookup var (cdr env)))))
+
+(define (eval-args args env)
+  (if (null? args)
+      '()
+      (cons (evalu8 (car args) env) (eval-args (cdr args) env))))
+
+(define (apply-function func args)
+  (if (procedure? func)
+      (apply func args)
+      (error "Attempting to apply a non-function" func)))
+
+(define (evalu8 expr env)
+  (cond ((number? expr) expr)
+        ((symbol? expr) (lookup expr env))
+        ((pair? expr)
+         (let ((func (evalu8 (car expr) env))
+               (args (eval-args (cdr expr) env)))
+           (cond ((eq? (car expr) 'lambda) (apply (eval (car expr)) args))
+                 ((procedure? func) (apply-function func args))
+                 (else (error "Unknown function type" (car expr))))))
+        (else (error "Invalid expression" expr))))
+
+;; Example environment with a user-defined function 'foo'
+(define env '((foo . (lambda (x y) (/ (+ x y) 2))) (a . 12) (b . 5.2)))
+
+;; Testing the evalu8 function with a user-defined function
+(evalu8 '(foo 5 9) env) ;; Should return 7
+
+;; Testing the evalu8 function with a lambda expression in function position
+(evalu8 '((lambda (x y) (* x (+ x y))) 2 3) env) ;; Should return 10
